@@ -190,6 +190,16 @@ class IMessageListener(Interface):
         """
 
 
+    def onAbort(stream_id, timestamp):
+        """
+        Called to notify the peer to discard chunks that are pending on a given
+        stream.
+
+        @param stream_id: The stream to drop the chunks from
+        @param timestamp: The timestamp that this message was dispatched
+        """
+
+
     def onBytesRead(bytes, timestamp):
         """
         Called when the peer reports the number of raw bytes read from the
