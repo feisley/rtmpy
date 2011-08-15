@@ -25,7 +25,8 @@ from rtmpy.util import add_to_class
 
 #: Changes the frame size for the RTMP stream
 FRAME_SIZE = 0x01
-# 0x02 is unknown
+#: Discard pending chunks
+ABORT = 0x02
 #: Send every x bytes read by both sides
 BYTES_READ = 0x03
 #: A stream control message, has subtypes
@@ -351,6 +352,49 @@ class FrameSize(Message):
         """
         listener.onFrameSize(self.size, timestamp)
 
+
+class Abort(Message):
+    """
+    Notifies the peer to discard chunks that are part of a partially received
+    message.
+
+    @ivar stream_id: Stream to have chunks discarded
+    @type stream_id: C{int}
+    """
+
+    set_type(ABORT)
+
+
+    def __init__(self, stream_id=None):
+        self.stream_id = stream_id
+
+
+    def decode(self, buf):
+        """
+        Decode an abort message.
+        """
+        self.stream_id = buf.read_ulong()
+
+
+    def encode(self, buf):
+        """
+        Encode an abort message.
+        """
+        if self.stream_id is None:
+            raise EncodeError('Stream ID not set')
+
+        try:
+            buf.write_ulong(self.stream_id)
+        except TypeError:
+            raise EncodeError('Stream ID wrong type '
+                '(expected int, got %r)' % (type(self.stream_id),))
+
+
+    def dispatch(self, listener, timestamp):
+        """
+        Dispatches the message to the listener.
+        """
+        listener.onAbort(self.stream_id, timestamp)
 
 
 class BytesRead(Message):

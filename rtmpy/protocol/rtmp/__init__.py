@@ -301,6 +301,10 @@ class BaseStreamer(object):
         """
         self.decoder.setFrameSize(size)
 
+    
+    def onAbort(self, stream_id, timestamp):
+        print "Abort stream %d with timestamp %d" % (stream_id, timestamp)
+
 
     def onDownstreamBandwidth(self, interval, timestamp):
         """
